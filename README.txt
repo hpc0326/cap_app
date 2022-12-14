@@ -1,0 +1,3 @@
+使用node運行server_new.js
+其中網頁端在client資料夾裡面
+所使用到的port是3000
