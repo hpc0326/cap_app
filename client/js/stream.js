@@ -298,7 +298,7 @@ let joinStream =  async() => {
               // </div>`
               let player = `<div class="video__container" id="user-container-${uid}">
                     <div class="video-player" id="user-${uid}-max">
-                      <video autoplay playsinline  id="user-${uid}"></video>
+                      <video autoplay playsinline muted id="user-${uid}"></video>
                     </div>
                  </div>`
     // console.log(videoElement)
