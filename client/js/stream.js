@@ -2,12 +2,33 @@ const audioInputSelect = document.querySelector('select#audioSource')
 const audioOutputSelect = document.querySelector('select#audioOutput')
 const videoSelect = document.querySelector('select#videoSource')
 const selectors = [audioInputSelect, audioOutputSelect, videoSelect]
-var videoElement = document.getElementById('player')
-var remoteVideo = document.getElementById('remoteVideo')
+let videoElement = document.getElementById('player')
+let remoteVideo = document.getElementById('remoteVideo')
 // console.log(videoElement)
 // console.log(remoteVideo)
 const btnstart = document.getElementById('start')
 const btninit = document.getElementById('btninit')
+const btncamera = document.getElementById('camera-btn')
+
+let remote
+
+btncamera.onclick = () => {
+  if(btncamera.classList.contains('active')){
+    console.log('off')
+    btncamera.classList.toggle('active')
+    document.getElementById(`user-${uid}`).srcObject = null 
+    socket.emit('cameraSwitch')
+
+  }else{
+    console.log('on')
+    btncamera.classList.toggle('active')
+    document.getElementById(`user-${uid}`).srcObject = localStream
+    socket.emit('cameraSwitch')
+
+  }
+
+}
+
 var constraints = {
   audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
   video: { deviceId: videoSource ? { exact: videoSource } : undefined },
@@ -131,13 +152,7 @@ const signalOption = {
       }
       console.log(track)
     });
-  //   localStream.getTracks().forEach((track)=>{
-  //     if(track.kink !== 'audio') {
-  //      peer.addTrack(track, localStream);
-  //      console.log(track)
-  //     }
-  //  });
-    // peer.addTrack(localStream);
+
   };
   
   //peer connection
@@ -219,6 +234,7 @@ const signalOption = {
       if(!remoteVideo.srcObject && event.stream){
         remoteVideo.srcObject = event.stream;
         console.log('接收流並顯示於遠端視訊！', event);
+        remote = remoteVideo
       }
     }
   }
@@ -277,6 +293,7 @@ if(!uid){
     uid = String(Math.floor(Math.random() * 10000))
     sessionStorage.setItem('uid', uid)
 }
+
 let joinStream =  async() => {
     document.getElementById('join-btn').style.display = 'none'
     //button
@@ -298,21 +315,16 @@ let joinStream =  async() => {
               // </div>`
               let player = `<div class="video__container" id="user-container-${uid}">
                     <div class="video-player" id="user-${uid}-max">
+
                       <video autoplay playsinline muted id="user-${uid}"></video>
                     </div>
                  </div>`
     // console.log(videoElement)
     // console.log(remoteVideo)
     document.getElementById('streams__container').insertAdjacentHTML('beforeend', player)
-    // videoElement = document.getElementById('player')
-    // remoteVideo = document.getElementById('remoteVideo')
     videoElement = document.getElementById(`user-${uid}`)
-    // remoteVideo = document.getElementById(`user-${uid}-audio`)
-    // console.log(videoElement)
-    // console.log(remoteVideo)
     document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
-    // localTracks[1].play(`user-${uid}`)
-    // await client.publish([localTracks[0], localTracks[1]])
+
 
     navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError)
     start();
@@ -331,8 +343,19 @@ document.getElementById('up-btn').addEventListener('click',()=>{
   // streaming()
 })
 // document.getElementById('pull-btn').addEventListener('click', pulling)
-document.getElementById('mic-btn').addEventListener('click',()=>{
+document.getElementById('mic-btn').addEventListener('click',(e)=>{
   console.log(peer)
+  console.log(document.getElementById('mic-btn').classList)
+  if (document.getElementById('mic-btn').classList.contains('active')){
+    document.getElementById('mic-btn').classList.toggle('active')
+    document.getElementById('on').hidden = true
+    document.getElementById('off').hidden = false
+  }else{
+    document.getElementById('mic-btn').classList.toggle('active')
+    document.getElementById('off').hidden = true
+    document.getElementById('on').hidden = false
+  }
+  
   // createSignal(true)
   // streaming()
 })

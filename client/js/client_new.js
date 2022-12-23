@@ -25,6 +25,7 @@ let localStream
 let offer
 
 
+
 let addMessageToDom = (name, message) => {
   let messagesWrapper = document.getElementById('messages')
   // console.log('test')
@@ -34,12 +35,7 @@ let addMessageToDom = (name, message) => {
                           <p class="message__text">${message}</p>
                       </div>
                   </div>`
-  // let newMessage = `<div class="message__wrapper">
-  //                     <div class="nav--list">
-  //                         <strong class="message__author">${name} &nbsp :</strong>
-  //                         <p class="message__text">${message}</p>
-  //                     </div>
-  //                   </div>`
+
   messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
 
   let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
@@ -47,11 +43,6 @@ let addMessageToDom = (name, message) => {
       lastMessage.scrollIntoView()
   }
 }
-//test turn into other page
-// let displayName = sessionStorage.getItem('display_name')
-// if(!displayName){
-//     window.location = 'lobby.html'
-// }
 
 const streaming = () => {
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError)
@@ -65,13 +56,40 @@ const stopStreaming = () => {
   // btnStopStreaming.disabled = true
 }
 
+document.getElementById('donate-btn').onclick = () => {
+  socket.emit('donation', room, displayName)
+  donationToRoom(displayName)
+}
+
+let donationToRoom = (data) => {
+    console.log(data)
+    let messagesWrapper = document.getElementById('messages')
+    // console.log('test')
+    let newMessage = `<div class="message__wrapper">
+                        <div class="message__body">
+                            <strong class="message__author">${data}&nbsp:</strong>
+                            <p class="message__text">-----give streamer donation !-----</p>
+                        </div>
+                    </div>`
+    messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
+  
+    let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
+    if(lastMessage){
+        lastMessage.scrollIntoView()
+    }
+
+}
+
+
 const pulling = () => {
   createPeerConnection()
   console.log('pulling')
   console.log(peer)
   socket.emit('pulling', room , peer)
 }
-// socket = io()
+
+
+
 const socketFunc = (process) => {
     console.log(process)
     //const url = 'wss://20.189.104.97:4443'
@@ -92,9 +110,10 @@ const socketFunc = (process) => {
       socket.disconnect()
     })
   
-    socket.on('message', (room, data) => {
+    socket.on('message', (room, data, Name) => {
       console.log(data)
-      addMessageToDom(displayName,data)
+      addMessageToDom(Name, data)
+      
       // console.log(`This is room : ${room} and message is ${data}`)
       // outputArea.scrollTop = outputArea.scrollHeight
       // outputArea.value = outputArea.value + data + '\n'
@@ -103,9 +122,13 @@ const socketFunc = (process) => {
     socket.on('disconnect', (reason) => {
 
     })
-  
     socket.on('test', (data) => {
-      console.log(data)
+      console.log('test')
+    })
+
+    socket.on('donatemsg', (data) => {
+      console.log('donation socket')
+      donationToRoom(data)
     })
   
   
@@ -122,6 +145,17 @@ const socketFunc = (process) => {
       socket.disconnect()
     })
   
+    socket.on('cameraSwitch', () => {
+      if(remoteVideo.classList.contains('active')){
+        console.log('off')
+        remoteVideo.classList.toggle('active')
+        remoteVideo.srcObject = null
+      }else{
+        console.log('on')
+        remoteVideo.srcObject = remote
+      }
+    })
+
     socket.on('peerconnectSignaling', async ({ desc, candidate },uid) => {
       // desc 指的是 Offer 與 Answer
       // currentRemoteDescription 代表的是最近一次連線成功的相關訊息
@@ -151,28 +185,12 @@ const socketFunc = (process) => {
     //------------------------------
   }
 
-// btnSend.onclick = () => {
-//   let data = inputArea.value
-//   data = userName.value + ':' + data
-//   socket.emit('message', room, data)
-//   inputArea.value = ''
-// }
 
-// btnLeave.onclick = () => {
-//   room = inputRoom.value
-//   socket.emit('leave', room)
-// }
 inputArea.onkeypress = (event) => {
   if (event.keyCode === 13 && inputArea.value !== "") {
-    // console.log('send........',room)
-    // event.preventDefault()
     let data = inputArea.value
-    // console.log('message'+inputArea.value)
-    // data = displayName + ':' + data
-    
-    socket.emit('message', room, data)
+    socket.emit('message', room, data, displayName)
     inputArea.value = ''
-    // event.preventDefault()
   }
 }
 // window.addEventListener("unload", function(event) {
@@ -187,45 +205,3 @@ window.onbeforeunload = function(event) {
       socket.emit('leave', room, socket.id)
       // console.log(socket.id)
 };
-// window.onunload = function(event) {  
-//   // event.returnValue = "我在這寫點東西...";
-//   socket.emit('leave', room, socket.id)
-//   // console.log(socket.id)
-// };
-// window.addEventListener('unload', (event) => {socket.emit('leave', room, socket.id) });
-// $(document).on("submit", "form", function(event){
-//   window.onbeforeunload = null;
-// });
-// btncreateChannel.onclick = () => socketFunc(1)
-// btnConnect.onclick = () => socketFunc(2)
-// btnStreaming.onclick = () => streaming()
-// btnStopStreaming.onclick = () => stopStreaming()
-// btnPulling.onclick = () => pulling()
-
-// if(inviteCode){
-//     console.log('display room client : ' + inviteCode)
-//     socketFunc(1)
-//   }
-
-// let joinStream = async () => {
-//   document.getElementById('join-btn').style.display = 'none'
-//   document.getElementsByClassName('stream__actions')[0].style.display = 'flex'
-
-//   localTracks = await AgoraRTC.createMicrophoneAndCameraTracks({}, {encoderConfig:{
-//       width:{min:640, ideal:1920, max:1920},
-//       height:{min:480, ideal:1080, max:1080}
-//   }})
-
-
-//   let player = `<div class="video__container" id="user-container-${uid}">
-//                   <div class="video-player" id="user-${uid}"></div>
-//                </div>`
-
-//   document.getElementById('streams__container').insertAdjacentHTML('beforeend', player)
-//   document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
-
-//   localTracks[1].play(`user-${uid}`)
-//   await client.publish([localTracks[0], localTracks[1]])
-// }
-
-// document.getElementById('join-btn').addEventListener('click', joinStream)

@@ -5,6 +5,7 @@ let sendMessage = async (e) => {
     // channel.sendMessage({text:JSON.stringify({'type':'chat', 'message':message, 'displayName':displayName})})
     addMessageToDom(displayName, message)
     e.target.reset()
+    console.log(message)
 }
 let addMessageToDom = (name, message) => {
     let messagesWrapper = document.getElementById('messages')
@@ -23,6 +24,10 @@ let addMessageToDom = (name, message) => {
         lastMessage.scrollIntoView()
     }
 }
+
 let messageForm = document.getElementById('message__form')
 messageForm.addEventListener('submit', sendMessage)
+
+
+
 

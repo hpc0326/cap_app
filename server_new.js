@@ -21,10 +21,6 @@ server.listen(port, () => {
 app.use(express.static(path.join(__dirname, 'client')));
 
 
-// app.get('/', function(req, res){
-//   res.render('./client/room.html');
-// });
-
 //function define
 const checkRoomList = (room) => {
   if (roomList.indexOf(room) == -1) return -1
@@ -40,8 +36,8 @@ const checkRoomList = (room) => {
 io.sockets.on('connection', (socket) => {
   console.log(socket.id, '已連線')
 
-  socket.on('message', (room, data) => {
-    io.in(room).emit('message', room, data)
+  socket.on('message', (room, data, Name) => {
+    io.in(room).emit('message', room, data, Name)
   })
 
   socket.on('create', (room) => {
@@ -105,6 +101,23 @@ io.sockets.on('connection', (socket) => {
     console.log('pulling')
     console.log(streamer[streamingRoomList.indexOf(room)])
     socket.to(streamer[roomList.indexOf(room)]).emit('test','test')
+  })
+  
+  socket.on('donation', (room, data) => {
+    //console.log('donation')
+    console.log(room)
+    socket.in(room).emit('donatemsg', data)
+
+  })
+  socket.on('test', (room, data) => {
+    //console.log('test')
+    socket.emit('test', 'test')
+  })
+
+  socket.on('cameraSwitch', (room) => {
+    //console.log('test')
+    
+    socket.in(room).emit('cameraSwitch')
   })
 })
 
