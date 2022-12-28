@@ -88,6 +88,3 @@ if(inviteCode){
   console.log('display room : ' + inviteCode)
   
 }
-
-//connect
-

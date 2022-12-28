@@ -109,16 +109,7 @@ io.sockets.on('connection', (socket) => {
     socket.in(room).emit('donatemsg', data)
 
   })
-  socket.on('test', (room, data) => {
-    //console.log('test')
-    socket.emit('test', 'test')
-  })
 
-  socket.on('cameraSwitch', (room) => {
-    //console.log('test')
-    
-    socket.in(room).emit('cameraSwitch')
-  })
 })
 
 

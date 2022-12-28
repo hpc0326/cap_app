@@ -21,7 +21,7 @@ const btnStopStreaming = document.getElementById('stopStreaming')
 let socket
 let room = inviteCode
 let peer
-let localStream
+
 let offer
 
 
@@ -143,17 +143,6 @@ const socketFunc = (process) => {
       console.log(msg)
 
       socket.disconnect()
-    })
-  
-    socket.on('cameraSwitch', () => {
-      if(remoteVideo.classList.contains('active')){
-        console.log('off')
-        remoteVideo.classList.toggle('active')
-        remoteVideo.srcObject = null
-      }else{
-        console.log('on')
-        remoteVideo.srcObject = remote
-      }
     })
 
     socket.on('peerconnectSignaling', async ({ desc, candidate },uid) => {

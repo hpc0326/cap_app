@@ -11,21 +11,22 @@ const btninit = document.getElementById('btninit')
 const btncamera = document.getElementById('camera-btn')
 
 let remote
-
+let localStream
 btncamera.onclick = () => {
-  if(btncamera.classList.contains('active')){
+
+ if(btncamera.classList.contains('active')){
     console.log('off')
     btncamera.classList.toggle('active')
     document.getElementById(`user-${uid}`).srcObject = null 
-    socket.emit('cameraSwitch')
 
   }else{
     console.log('on')
     btncamera.classList.toggle('active')
     document.getElementById(`user-${uid}`).srcObject = localStream
-    socket.emit('cameraSwitch')
 
   }
+
+  localStream.getVideoTracks()[0].enabled = !(localStream.getVideoTracks()[0].enabled);
 
 }
 
@@ -147,6 +148,7 @@ const signalOption = {
     console.log('add localstream')
     localStream.getTracks().forEach((track) => {
       peer.addTrack(track, localStream);
+      console.log(track.kind)
       if(track.kind === 'audio'){
 
       }
@@ -166,30 +168,6 @@ const signalOption = {
     peer = new RTCPeerConnection(configuration)
     console.log('peer created', peer)
   }
-  
-  
-  /*function createSignal(isOffer) {
-    try {
-      if (!peer) {
-        console.log('尚未開啟視訊')
-        return;
-      }
-      offer =  peer[`create${isOffer ? 'Offer' : 'Answer'}`](signalOption);
-      peer.setLocalDescription(offer);
-      sendSignalingMessage(peer.localDescription, isOffer ? true : false)
-    } catch(err) {
-      console.log(err);
-    }
-  }
-  
-  const sendSignalingMessage = (desc, offer) => {
-    const isOffer = offer ? "offer" : "answer";
-    console.log('peer : ', peer)
-    socket.emit('streaming', room,  { desc })
-    btnStreaming.disabled = true
-    btnPulling.disabled = true
-    btnStopStreaming.disabled = false
-  }*/
   
   //new
   // 監聽 ICE Server
@@ -242,6 +220,7 @@ const signalOption = {
   
   function initPeerConnection() {
     // start();
+    peer.close()
     console.log('end start')
     createPeerConnection();
     console.log('initial peer connection')
@@ -250,6 +229,8 @@ const signalOption = {
     onIceconnectionStateChange();
     onAddStream();
   }
+
+
   
   async function createSignal(isOffer) {
     try {
@@ -299,20 +280,7 @@ let joinStream =  async() => {
     //button
     document.getElementsByClassName('stream__actions')[0].style.display = 'flex'
     console.log(uid)
-    // localTracks = await AgoraRTC.createMicrophoneAndCameraTracks({}, {encoderConfig:{
-    //     width:{min:640, ideal:1920, max:1920},
-    //     height:{min:480, ideal:1080, max:1080}
-    // }})
 
-
-    // let player = `<div class="video__container" id="user-container-${uid}">
-    //                 <video autoplay playsinline id="player" style="transform: scaleX(-1)"></video>
-    //                 <video autoplay id="remoteVideo" ></video>
-    //              </div>`
-              //    let player = `<div class="video__container" id="user-container-${uid}">
-              //    <video autoplay playsinline  id="user-${uid}"></video>
-              //    <video autoplay id="user-${uid}-audio" ></video>
-              // </div>`
               let player = `<div class="video__container" id="user-container-${uid}">
                     <div class="video-player" id="user-${uid}-max">
 
@@ -335,6 +303,7 @@ let joinStream =  async() => {
 document.getElementById('join-btn').addEventListener('click',()=>{
   joinStream()
   pulling()
+  console.log('join')
   // streaming()
 })
 
@@ -355,12 +324,13 @@ document.getElementById('mic-btn').addEventListener('click',(e)=>{
     document.getElementById('off').hidden = true
     document.getElementById('on').hidden = false
   }
-  
+  localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
   // createSignal(true)
   // streaming()
 })
 
-// closeTrack(trackname, isopen){
-//   this[`${trackName}Tracks`][0].enabled = isOpen
-//   this[`${trackName}Tracks`] = this.localstream[trackName === 'video'? 'getVideoTracks' : 'getAudioTracks']()
-// }
+function videoPeerConnection() {
+  console.log('video peerconnection')
+ 
+  
+}
