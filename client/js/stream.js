@@ -4,11 +4,10 @@ const videoSelect = document.querySelector('select#videoSource')
 const selectors = [audioInputSelect, audioOutputSelect, videoSelect]
 let videoElement = document.getElementById('player')
 let remoteVideo = document.getElementById('remoteVideo')
-// console.log(videoElement)
-// console.log(remoteVideo)
-const btnstart = document.getElementById('start')
-const btninit = document.getElementById('btninit')
 const btncamera = document.getElementById('camera-btn')
+
+const musicbtn = document.getElementById('music-btn')
+const musicSrc = document.getElementById('musicSource')
 
 let remote
 let localStream
@@ -33,8 +32,6 @@ btncamera.onclick = () => {
 var constraints = {
   audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
   video: { deviceId: videoSource ? { exact: videoSource } : undefined },
-  // audio:true,
-  // video:true
 }
 const signalOption = {
     offerToReceiveAudio: 1, // 是否傳送聲音流給對方
@@ -120,8 +117,6 @@ const signalOption = {
   
   // 播放自己的視訊
   function start() {
-    // videoElement = document.getElementById(`user-${uid}`)
-    // remoteVideo = document.getElementById(`user-${uid}-audio`)
     if (window.stream) {
       window.stream.getTracks().forEach((track) => {
         track.stop()
@@ -150,11 +145,11 @@ const signalOption = {
       peer.addTrack(track, localStream);
       console.log(track.kind)
       if(track.kind === 'audio'){
-
+       
       }
       console.log(track)
     });
-
+    //peer.addTrack(musicSrc.captureStream().getAudioTracks) 
   };
   
   //peer connection
@@ -169,7 +164,7 @@ const signalOption = {
     console.log('peer created', peer)
   }
   
-  //new
+
   // 監聽 ICE Server
   function onIceCandidates(uid) {
     // 找尋到 ICE 候選位置後，送去 Server 與另一位配對
@@ -188,22 +183,16 @@ const signalOption = {
   }
   
   let addvideoToDom = () => {
-    // let messagesWrapper = document.getElementById('video')
-    // console.log('test')
     let newMessage = `<div class="video__container" id="user-container-remoteVideo">
                           <div class="video-player" id="user-remoteVideo-max">
                             <video autoplay playsinline  id="remoteVideo"></video>
                           </div>
                       </div>`
    
-    // messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
     document.getElementById('streams__container').insertAdjacentHTML('beforeend', newMessage)
     remoteVideo = document.getElementById('remoteVideo')
     document.getElementById(`user-container-remoteVideo`).addEventListener('click', expandVideoFrame)
-    // let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
-    // if(lastMessage){
-    //     lastMessage.scrollIntoView()
-    // }
+   
   }
   // 監聽是否有流傳入，如果有的話就顯示影像
   function onAddStream() {
@@ -219,11 +208,9 @@ const signalOption = {
   
   
   function initPeerConnection() {
-    // start();
-    peer.close()
-    console.log('end start')
-    createPeerConnection();
     console.log('initial peer connection')
+    peer.close()
+    createPeerConnection();
     addLocalStream();
     onIceCandidates();
     onIceconnectionStateChange();
@@ -264,9 +251,9 @@ const signalOption = {
     )
   }
 
-  // audioOutputSelect.onchange = changeAudioDestination
-  // btninit.onclick = () => initPeerConnection()
-  // btnstart.onclick = () => createSignal(true)
+  audioOutputSelect.onchange = changeAudioDestination
+
+
 ///////////////========================================================================================
 let localTracks = []
 let uid = sessionStorage.getItem('uid')
@@ -287,8 +274,7 @@ let joinStream =  async() => {
                       <video autoplay playsinline muted id="user-${uid}"></video>
                     </div>
                  </div>`
-    // console.log(videoElement)
-    // console.log(remoteVideo)
+
     document.getElementById('streams__container').insertAdjacentHTML('beforeend', player)
     videoElement = document.getElementById(`user-${uid}`)
     document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
@@ -296,22 +282,21 @@ let joinStream =  async() => {
 
     navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError)
     start();
-    // initPeerConnection()
     
 }
-// console.log('456')
+
 document.getElementById('join-btn').addEventListener('click',()=>{
   joinStream()
   pulling()
   console.log('join')
-  // streaming()
+
 })
 
 document.getElementById('up-btn').addEventListener('click',()=>{
   createSignal(true)
-  // streaming()
+
 })
-// document.getElementById('pull-btn').addEventListener('click', pulling)
+
 document.getElementById('mic-btn').addEventListener('click',(e)=>{
   console.log(peer)
   console.log(document.getElementById('mic-btn').classList)
@@ -325,12 +310,22 @@ document.getElementById('mic-btn').addEventListener('click',(e)=>{
     document.getElementById('on').hidden = false
   }
   localStream.getAudioTracks()[0].enabled = !localStream.getAudioTracks()[0].enabled;
-  // createSignal(true)
-  // streaming()
+
 })
 
-function videoPeerConnection() {
-  console.log('video peerconnection')
- 
+musicbtn.onclick = () => {
+  
+  if(musicbtn.classList.contains('active')){
+    musicbtn.classList.toggle('active')
+    musicSrc.hidden = true
+    musicSrc.muted = true
+    peer.addTrack(musicSrc.captureStream().getAudioTracks) 
+    
+  }else{
+    musicbtn.classList.toggle('active')
+    musicSrc.hidden = false
+    musicSrc.muted = false
+    //peer.removeTrack(musicSrc.captureStream().getAudioTracks) 
+  }
   
 }

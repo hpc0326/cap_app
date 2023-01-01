@@ -51,9 +51,6 @@ const streaming = () => {
 
 const stopStreaming = () => {
   socket.emit('stopStreaming', room, 'stopstreaming')
-  // btnStreaming.disabled = false
-  // btnPulling.disabled = false
-  // btnStopStreaming.disabled = true
 }
 
 document.getElementById('donate-btn').onclick = () => {
@@ -64,7 +61,6 @@ document.getElementById('donate-btn').onclick = () => {
 let donationToRoom = (data) => {
     console.log(data)
     let messagesWrapper = document.getElementById('messages')
-    // console.log('test')
     let newMessage = `<div class="message__wrapper">
                         <div class="message__body">
                             <strong class="message__author">${data}&nbsp:</strong>
@@ -92,7 +88,6 @@ const pulling = () => {
 
 const socketFunc = (process) => {
     console.log(process)
-    //const url = 'wss://20.189.104.97:4443'
     const url = 'http://localhost:3000'
     room = inviteCode
     socket = io()
@@ -113,10 +108,7 @@ const socketFunc = (process) => {
     socket.on('message', (room, data, Name) => {
       console.log(data)
       addMessageToDom(Name, data)
-      
-      // console.log(`This is room : ${room} and message is ${data}`)
-      // outputArea.scrollTop = outputArea.scrollHeight
-      // outputArea.value = outputArea.value + data + '\n'
+    
     })
   
     socket.on('disconnect', (reason) => {
@@ -182,15 +174,11 @@ inputArea.onkeypress = (event) => {
     inputArea.value = ''
   }
 }
-// window.addEventListener("unload", function(event) {
-//   socket.emit('leave', room, socket.id)
-//   console.log('jaaaa')
-// });
+
 window.onload = function(event) {  
   socketFunc(2)
 };
 window.onbeforeunload = function(event) {  
       event.returnValue = "我在這寫點東西...";
       socket.emit('leave', room, socket.id)
-      // console.log(socket.id)
 };

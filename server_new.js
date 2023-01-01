@@ -41,6 +41,7 @@ io.sockets.on('connection', (socket) => {
   })
 
   socket.on('create', (room) => {
+    
     const tmp = checkRoomList(room)
     const ans = '您已創立聊天室\n房號為 : '
     console.log(tmp,room,'original : ',roomList)
@@ -52,9 +53,15 @@ io.sockets.on('connection', (socket) => {
       socket.emit('success_create')
       io.in(room).emit('message', room,ans+room)
     }else if (tmp == 1){
+      
       const msg = 'The room has already been created'
+      console.log(msg)
+      socket.join(room)
+      socket.emit('joined', room, socket.id)
+      socket.emit('success_create')
+      io.in(room).emit('message', room,ans+room)
       // console.log(room)
-      socket.emit('createFailed', room, msg)
+      //socket.emit('createFailed', room, msg)
     }
     
   })
